@@ -1,9 +1,22 @@
 from fastapi import FastAPI
-from database.gastos import criar_gasto
+from database.gastos import criar_gasto, listar_gastos
 
 
 app = FastAPI()
 
+@app.get("/gastos")
+def consultar_gastos():
+    gastos = listar_gastos()
+    return [
+        {
+            "id": gasto[0],
+            "descricao": gasto[1],
+            "valor": gasto[2],
+            "categoria": gasto[3],
+            "data": gasto[4]
+        }
+        for gasto in gastos
+    ]
 
 @app.get("/")
 def home():
