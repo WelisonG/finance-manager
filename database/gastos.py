@@ -50,3 +50,37 @@ def buscar_valores_gastos(data_inicio=None, data_fim=None):
     connection.close()
 
     return valores
+
+def atualizar_gasto(id_gasto, descricao, valor, categoria, data):
+    connection = sqlite3.connect("finance.db")
+
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE gastos
+        SET descricao = ?, valor = ?, categoria = ?, data = ?
+        WHERE id = ?
+    """, (descricao, valor, categoria, data, id_gasto))
+
+    connection.commit()
+
+    atualizado = cursor.rowcount > 0
+
+    connection.close()
+
+    return atualizado
+
+def excluir_gasto(id_gasto):
+    connection = sqlite3.connect("finance.db")
+
+    cursor = connection.cursor()
+
+    cursor.execute("DELETE FROM gastos WHERE id = ?", (id_gasto,))
+
+    connection.commit()
+
+    excluido = cursor.rowcount > 0
+
+    connection.close()
+
+    return excluido

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from database.gastos import buscar_valores_gastos, criar_gasto, listar_gastos
+from database.gastos import atualizar_gasto, buscar_valores_gastos, criar_gasto, excluir_gasto, listar_gastos
 from schemas.gastos import Gasto
 from schemas.categorias import CATEGORIAS
 from datetime import date, datetime
@@ -100,4 +100,37 @@ def cadastrar_gasto(gasto: Gasto):
     )
 
     return {"mensagem": "Gasto criado com sucesso!", "gasto": gasto}
+
+@app.put("/gastos/{id_gasto}")
+def editar_gasto(id_gasto: int, gasto: Gasto):
+    atualizado = atualizar_gasto(
+        id_gasto,
+        gasto.descricao,
+        gasto.valor,
+        gasto.categoria,
+        gasto.data.isoformat()
+    )
+
+    if not atualizado:
+        raise HTTPException(status_code=404, detail="Gasto não encontrado")
+
+    return {
+        "mensagem": "Gasto atualizado com sucesso!",
+        "gasto": {
+            "id": id_gasto,
+            "descricao": gasto.descricao,
+            "valor": gasto.valor,
+            "categoria": gasto.categoria,
+            "data": gasto.data.strftime("%d/%m/%Y"),
+        },
+    }
+
+@app.delete("/gastos/{id_gasto}")
+def remover_gasto(id_gasto: int):
+    excluido = excluir_gasto(id_gasto)
+
+    if not excluido:
+        raise HTTPException(status_code=404, detail="Gasto não encontrado")
+
+    return {"mensagem": "Gasto excluído com sucesso!"}
 
