@@ -140,8 +140,7 @@ def remover_receita(id_receita: int):
 
     return {"mensagem": "Receita excluída com sucesso!"}
 
-@app.get("/financeiro/mensal")
-def consultar_financeiro_mensal(ano: int = Query(..., ge=1900, le=9999)):
+def calcular_meses(ano):
     inicio = f"{ano:04d}-01-01"
     fim = f"{ano:04d}-12-31"
 
@@ -154,18 +153,62 @@ def consultar_financeiro_mensal(ano: int = Query(..., ge=1900, le=9999)):
     for data, valor in buscar_datas_valores_gastos(inicio, fim):
         despesas_por_mes[int(data[5:7])] += Decimal(str(valor))
 
+    return [
+        {
+            "mes": mes,
+            "receitas": receitas_por_mes[mes],
+            "despesas": despesas_por_mes[mes],
+            "saldo": receitas_por_mes[mes] - despesas_por_mes[mes],
+        }
+        for mes in range(1, 13)
+    ]
+
+def calcular_variacao(atual, anterior):
+    if anterior is None or anterior == 0:
+        return None
+    return arredondar((atual - anterior) / abs(anterior) * 100)
+
+@app.get("/financeiro/mensal")
+def consultar_financeiro_mensal(ano: int = Query(..., ge=1900, le=9999)):
+    meses = calcular_meses(ano)
+
     return {
         "ano": ano,
         "meses": [
             {
-                "mes": mes,
-                "receitas": arredondar(receitas_por_mes[mes]),
-                "despesas": arredondar(despesas_por_mes[mes]),
-                "saldo": arredondar(receitas_por_mes[mes] - despesas_por_mes[mes]),
+                "mes": mes["mes"],
+                "receitas": arredondar(mes["receitas"]),
+                "despesas": arredondar(mes["despesas"]),
+                "saldo": arredondar(mes["saldo"]),
             }
-            for mes in range(1, 13)
+            for mes in meses
         ],
     }
+
+@app.get("/financeiro/comparativo")
+def consultar_comparativo_mensal(ano: int = Query(..., ge=1900, le=9999)):
+    meses = calcular_meses(ano)
+
+    comparativo = []
+    for indice, mes in enumerate(meses):
+        anterior = meses[indice - 1] if indice > 0 else None
+        comparativo.append({
+            "mes": mes["mes"],
+            "receitas": arredondar(mes["receitas"]),
+            "despesas": arredondar(mes["despesas"]),
+            "saldo": arredondar(mes["saldo"]),
+            "variacao_receitas": calcular_variacao(
+                mes["receitas"], anterior["receitas"] if anterior else None
+            ),
+            "variacao_despesas": calcular_variacao(
+                mes["despesas"], anterior["despesas"] if anterior else None
+            ),
+            "variacao_saldo": calcular_variacao(
+                mes["saldo"], anterior["saldo"] if anterior else None
+            ),
+        })
+
+    return {"ano": ano, "meses": comparativo}
 
 @app.get("/categorias")
 def consultar_categorias():
