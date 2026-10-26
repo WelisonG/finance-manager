@@ -82,6 +82,31 @@ def consultar_resumo(
         "por_categoria": por_categoria,
     }
 
+@app.get("/financeiro/resumo")
+def consultar_resumo_financeiro(
+    data_inicio: date | None = None,
+    data_fim: date | None = None,
+):
+    validar_periodo(data_inicio, data_fim)
+
+    inicio = data_inicio.isoformat() if data_inicio else None
+    fim = data_fim.isoformat() if data_fim else None
+
+    total_receitas = sum(
+        (Decimal(str(valor)) for _, valor in buscar_valores_receitas(inicio, fim)),
+        Decimal("0"),
+    )
+    total_despesas = sum(
+        (Decimal(str(valor)) for _, valor in buscar_valores_gastos(inicio, fim)),
+        Decimal("0"),
+    )
+
+    return {
+        "total_receitas": arredondar(total_receitas),
+        "total_despesas": arredondar(total_despesas),
+        "saldo": arredondar(total_receitas - total_despesas),
+    }
+
 @app.get("/categorias")
 def consultar_categorias():
     return CATEGORIAS
