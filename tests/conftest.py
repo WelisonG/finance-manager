@@ -25,6 +25,14 @@ def banco_teste(tmp_path, monkeypatch):
         categoria TEXT NOT NULL,
         data TEXT NOT NULL)
     """)
+    conexao.execute("""
+        CREATE TABLE IF NOT EXISTS receitas
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        descricao TEXT NOT NULL,
+        valor REAL NOT NULL,
+        categoria TEXT NOT NULL,
+        data TEXT NOT NULL)
+    """)
     conexao.commit()
     conexao.close()
 
@@ -44,6 +52,24 @@ def gastos_iniciais(banco_teste):
     conexao.executemany(
         "INSERT INTO gastos (descricao, valor, categoria, data) VALUES (?, ?, ?, ?)",
         gastos,
+    )
+    conexao.commit()
+    conexao.close()
+
+
+@pytest.fixture
+def receitas_iniciais(banco_teste):
+    receitas = [
+        ("Salário de janeiro", 3000.0, "Salário", "2026-01-05"),
+        ("Freela site", 500.0, "Freelance", "2026-01-20"),
+        ("Salário de fevereiro", 3000.0, "Salário", "2026-02-05"),
+        ("Reembolso viagem", 120.5, "Reembolsos", "2026-02-18"),
+    ]
+
+    conexao = sqlite3.connect(banco_teste)
+    conexao.executemany(
+        "INSERT INTO receitas (descricao, valor, categoria, data) VALUES (?, ?, ?, ?)",
+        receitas,
     )
     conexao.commit()
     conexao.close()

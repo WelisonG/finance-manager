@@ -9,3 +9,11 @@ CATEGORIAS = [
     "Compras",
     "Outros",
 ]
+
+CATEGORIAS_RECEITAS = [
+    "Salário",
+    "Freelance",
+    "Investimentos",
+    "Reembolsos",
+    "Outros",
+]

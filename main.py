@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from database.gastos import atualizar_gasto, buscar_valores_gastos, criar_gasto, excluir_gasto, listar_gastos
+from database.receitas import buscar_valores_receitas, criar_receita, listar_receitas
 from schemas.gastos import Gasto
+from schemas.receitas import Receita
 from schemas.categorias import CATEGORIAS
 from datetime import date, datetime
 from decimal import ROUND_HALF_UP, Decimal
@@ -133,4 +135,72 @@ def remover_gasto(id_gasto: int):
         raise HTTPException(status_code=404, detail="Gasto não encontrado")
 
     return {"mensagem": "Gasto excluído com sucesso!"}
+
+@app.post("/receitas")
+def cadastrar_receita(receita: Receita):
+    criar_receita(
+        receita.descricao,
+        receita.valor,
+        receita.categoria,
+        receita.data.isoformat()
+    )
+
+    return {"mensagem": "Receita criada com sucesso!", "receita": receita}
+
+@app.get("/receitas")
+def consultar_receitas(
+    data_inicio: date | None = None,
+    data_fim: date | None = None,
+):
+    validar_periodo(data_inicio, data_fim)
+
+    receitas = listar_receitas(
+        data_inicio.isoformat() if data_inicio else None,
+        data_fim.isoformat() if data_fim else None,
+    )
+    return [
+        {
+            "id": receita[0],
+            "descricao": receita[1],
+            "valor": receita[2],
+            "categoria": receita[3],
+            "data": datetime.strptime(receita[4], "%Y-%m-%d").strftime("%d/%m/%Y")
+        }
+        for receita in receitas
+    ]
+
+@app.get("/receitas/resumo")
+def consultar_resumo_receitas(
+    data_inicio: date | None = None,
+    data_fim: date | None = None,
+):
+    validar_periodo(data_inicio, data_fim)
+
+    valores = buscar_valores_receitas(
+        data_inicio.isoformat() if data_inicio else None,
+        data_fim.isoformat() if data_fim else None,
+    )
+
+    totais = {}
+    for categoria, valor in valores:
+        total_categoria, quantidade = totais.get(categoria, (Decimal("0"), 0))
+        totais[categoria] = (total_categoria + Decimal(str(valor)), quantidade + 1)
+
+    total = sum((t for t, _ in totais.values()), Decimal("0"))
+    quantidade = sum(q for _, q in totais.values())
+
+    por_categoria = sorted(
+        (
+            {"categoria": categoria, "total": arredondar(t), "quantidade": q}
+            for categoria, (t, q) in totais.items()
+        ),
+        key=lambda item: item["total"],
+        reverse=True,
+    )
+
+    return {
+        "total": arredondar(total),
+        "quantidade": quantidade,
+        "por_categoria": por_categoria,
+    }
 
