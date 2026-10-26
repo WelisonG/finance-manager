@@ -74,9 +74,9 @@ export function FormularioMovimentacao({ aoCadastrar }: FormularioMovimentacaoPr
   const rotuloTipo = tipo === 'receita' ? 'receita' : 'despesa'
 
   return (
-    <section className="formulario-card" aria-labelledby="titulo-formulario">
+    <>
+
       <div className="formulario-cabecalho">
-        <h2 id="titulo-formulario">Nova movimentação</h2>
         <div className="alternador" role="group" aria-label="Tipo de movimentação">
           <button
             type="button"
@@ -124,6 +124,6 @@ export function FormularioMovimentacao({ aoCadastrar }: FormularioMovimentacaoPr
           {feedback.mensagem}
         </p>
       )}
-    </section>
+    </>
   )
 }

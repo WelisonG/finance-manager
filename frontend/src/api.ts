@@ -6,6 +6,20 @@ export type ResumoFinanceiro = {
   saldo: number
 }
 
+export type MesFinanceiro = {
+  mes: number
+  receitas: number
+  despesas: number
+  saldo: number
+}
+
+// Variações em percentual (ex.: 12.5 = 12,5%); null quando não há mês anterior com base para comparação.
+export type MesComparativo = MesFinanceiro & {
+  variacao_receitas: number | null
+  variacao_despesas: number | null
+  variacao_saldo: number | null
+}
+
 export type NovaMovimentacao = {
   descricao: string
   valor: number
@@ -101,6 +115,22 @@ export function buscarResumo(signal: AbortSignal) {
 
 export function buscarCategoriasDespesa(signal: AbortSignal) {
   return requisitar<string[]>('/categorias', { signal })
+}
+
+export async function buscarMensal(ano: number, signal: AbortSignal) {
+  const resposta = await requisitar<{ ano: number; meses: MesFinanceiro[] }>(
+    `/financeiro/mensal?ano=${ano}`,
+    { signal },
+  )
+  return resposta.meses
+}
+
+export async function buscarComparativo(ano: number, signal: AbortSignal) {
+  const resposta = await requisitar<{ ano: number; meses: MesComparativo[] }>(
+    `/financeiro/comparativo?ano=${ano}`,
+    { signal },
+  )
+  return resposta.meses
 }
 
 export function cadastrarMovimentacao(tipo: TipoMovimentacao, dados: NovaMovimentacao) {

@@ -113,9 +113,8 @@ export function ListaMovimentacoes({ versao, aoAlterar }: ListaMovimentacoesProp
   }
 
   return (
-    <section className="lista-card" aria-labelledby="titulo-lista">
+    <>
       <div className="lista-cabecalho">
-        <h2 id="titulo-lista">Movimentações</h2>
         <div className="alternador" role="group" aria-label="Filtrar movimentações">
           {opcoesFiltro.map((opcao) => (
             <button
@@ -226,6 +225,6 @@ export function ListaMovimentacoes({ versao, aoAlterar }: ListaMovimentacoesProp
           aoSalvar={salvouEdicao}
         />
       )}
-    </section>
+    </>
   )
 }

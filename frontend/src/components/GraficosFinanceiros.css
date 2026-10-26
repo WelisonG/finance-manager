@@ -1,0 +1,140 @@
+.graficos-card {
+  margin-bottom: 24px;
+  padding: 24px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  box-sizing: border-box;
+}
+
+.graficos-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.seletor-ano {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.seletor-ano select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-strong);
+  font: inherit;
+  cursor: pointer;
+}
+
+.seletor-ano select:focus-visible {
+  outline: 2px solid var(--saldo);
+  outline-offset: 1px;
+}
+
+.seletor-ano select:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.graficos-estado {
+  padding: 24px 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+.graficos-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
+.grafico-bloco,
+.tabela-bloco {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.grafico-bloco h3,
+.tabela-bloco h3 {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.tabela-wrapper {
+  overflow-x: auto;
+}
+
+.tabela-variacoes {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela-variacoes th,
+.tabela-variacoes td {
+  padding: 8px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-strong);
+  white-space: nowrap;
+}
+
+.tabela-variacoes thead th {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.tabela-variacoes th:first-child {
+  text-align: left;
+}
+
+.indisponivel {
+  font-style: italic;
+  color: var(--muted);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (min-width: 960px) {
+  .graficos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tabela-bloco {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .graficos-card {
+    padding: 18px;
+  }
+}
