@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from database.gastos import atualizar_gasto, buscar_valores_gastos, criar_gasto, excluir_gasto, listar_gastos
-from database.receitas import buscar_valores_receitas, criar_receita, listar_receitas
+from database.receitas import atualizar_receita, buscar_valores_receitas, criar_receita, excluir_receita, listar_receitas
 from schemas.gastos import Gasto
 from schemas.receitas import Receita
 from schemas.categorias import CATEGORIAS
@@ -106,6 +106,39 @@ def consultar_resumo_financeiro(
         "total_despesas": arredondar(total_despesas),
         "saldo": arredondar(total_receitas - total_despesas),
     }
+
+@app.put("/receitas/{id_receita}")
+def editar_receita(id_receita: int, receita: Receita):
+    atualizado = atualizar_receita(
+        id_receita,
+        receita.descricao,
+        receita.valor,
+        receita.categoria,
+        receita.data.isoformat()
+    )
+
+    if not atualizado:
+        raise HTTPException(status_code=404, detail="Receita não encontrada")
+
+    return {
+        "mensagem": "Receita atualizada com sucesso!",
+        "receita": {
+            "id": id_receita,
+            "descricao": receita.descricao,
+            "valor": receita.valor,
+            "categoria": receita.categoria,
+            "data": receita.data.strftime("%d/%m/%Y"),
+        },
+    }
+
+@app.delete("/receitas/{id_receita}")
+def remover_receita(id_receita: int):
+    excluido = excluir_receita(id_receita)
+
+    if not excluido:
+        raise HTTPException(status_code=404, detail="Receita não encontrada")
+
+    return {"mensagem": "Receita excluída com sucesso!"}
 
 @app.get("/categorias")
 def consultar_categorias():

@@ -49,3 +49,37 @@ def buscar_valores_receitas(data_inicio=None, data_fim=None):
     connection.close()
 
     return valores
+
+def atualizar_receita(id_receita, descricao, valor, categoria, data):
+    connection = sqlite3.connect("finance.db")
+
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE receitas
+        SET descricao = ?, valor = ?, categoria = ?, data = ?
+        WHERE id = ?
+    """, (descricao, valor, categoria, data, id_receita))
+
+    connection.commit()
+
+    atualizado = cursor.rowcount > 0
+
+    connection.close()
+
+    return atualizado
+
+def excluir_receita(id_receita):
+    connection = sqlite3.connect("finance.db")
+
+    cursor = connection.cursor()
+
+    cursor.execute("DELETE FROM receitas WHERE id = ?", (id_receita,))
+
+    connection.commit()
+
+    excluido = cursor.rowcount > 0
+
+    connection.close()
+
+    return excluido
