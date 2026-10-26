@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException
-from database.gastos import atualizar_gasto, buscar_valores_gastos, criar_gasto, excluir_gasto, listar_gastos
-from database.receitas import atualizar_receita, buscar_valores_receitas, criar_receita, excluir_receita, listar_receitas
+from fastapi import FastAPI, HTTPException, Query
+from database.gastos import atualizar_gasto, buscar_datas_valores_gastos, buscar_valores_gastos, criar_gasto, excluir_gasto, listar_gastos
+from database.receitas import atualizar_receita, buscar_datas_valores_receitas, buscar_valores_receitas, criar_receita, excluir_receita, listar_receitas
 from schemas.gastos import Gasto
 from schemas.receitas import Receita
 from schemas.categorias import CATEGORIAS
@@ -139,6 +139,33 @@ def remover_receita(id_receita: int):
         raise HTTPException(status_code=404, detail="Receita não encontrada")
 
     return {"mensagem": "Receita excluída com sucesso!"}
+
+@app.get("/financeiro/mensal")
+def consultar_financeiro_mensal(ano: int = Query(..., ge=1900, le=9999)):
+    inicio = f"{ano:04d}-01-01"
+    fim = f"{ano:04d}-12-31"
+
+    receitas_por_mes = {mes: Decimal("0") for mes in range(1, 13)}
+    despesas_por_mes = {mes: Decimal("0") for mes in range(1, 13)}
+
+    for data, valor in buscar_datas_valores_receitas(inicio, fim):
+        receitas_por_mes[int(data[5:7])] += Decimal(str(valor))
+
+    for data, valor in buscar_datas_valores_gastos(inicio, fim):
+        despesas_por_mes[int(data[5:7])] += Decimal(str(valor))
+
+    return {
+        "ano": ano,
+        "meses": [
+            {
+                "mes": mes,
+                "receitas": arredondar(receitas_por_mes[mes]),
+                "despesas": arredondar(despesas_por_mes[mes]),
+                "saldo": arredondar(receitas_por_mes[mes] - despesas_por_mes[mes]),
+            }
+            for mes in range(1, 13)
+        ],
+    }
 
 @app.get("/categorias")
 def consultar_categorias():
