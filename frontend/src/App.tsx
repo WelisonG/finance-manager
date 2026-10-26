@@ -2,20 +2,17 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import { buscarResumo, mensagemDeErro, type ResumoFinanceiro } from './api'
 import { FormularioMovimentacao } from './components/FormularioMovimentacao'
+import { ListaMovimentacoes } from './components/ListaMovimentacoes'
+import { formatadorMoeda } from './movimentacoes'
 
 type Estado =
   | { status: 'carregando' }
   | { status: 'erro'; mensagem: string }
   | { status: 'sucesso'; resumo: ResumoFinanceiro }
 
-const formatadorMoeda = new Intl.NumberFormat('pt-BR', {
-  style: 'currency',
-  currency: 'BRL',
-})
-
 function App() {
   const [estado, setEstado] = useState<Estado>({ status: 'carregando' })
-  // Incrementado para refazer a busca do resumo (retry e após cadastro).
+  // Incrementado para refazer a busca do resumo e da lista (retry, cadastro, edição e exclusão).
   const [versao, setVersao] = useState(0)
 
   useEffect(() => {
@@ -33,10 +30,10 @@ function App() {
 
   function tentarNovamente() {
     setEstado({ status: 'carregando' })
-    setVersao((valor) => valor + 1)
+    atualizarDados()
   }
 
-  function atualizarResumo() {
+  function atualizarDados() {
     setVersao((valor) => valor + 1)
   }
 
@@ -94,7 +91,9 @@ function App() {
         </article>
       </section>
 
-      <FormularioMovimentacao aoCadastrar={atualizarResumo} />
+      <FormularioMovimentacao aoCadastrar={atualizarDados} />
+
+      <ListaMovimentacoes versao={versao} aoAlterar={atualizarDados} />
     </div>
   )
 }

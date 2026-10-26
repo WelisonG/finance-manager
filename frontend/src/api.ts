@@ -13,6 +13,20 @@ export type NovaMovimentacao = {
   data: string
 }
 
+export type Movimentacao = {
+  id: number
+  tipo: TipoMovimentacao
+  descricao: string
+  valor: number
+  categoria: string
+  // Formato devolvido pela API: dd/mm/aaaa.
+  data: string
+  // Mesma data em aaaa-mm-dd, para ordenar e preencher o campo de data.
+  dataIso: string
+}
+
+type MovimentacaoApi = Omit<Movimentacao, 'tipo' | 'dataIso'>
+
 // A API não expõe as categorias de receita; esta lista espelha CATEGORIAS_RECEITAS em schemas/categorias.py.
 export const CATEGORIAS_RECEITAS = [
   'Salário',
@@ -32,6 +46,11 @@ export function mensagemDeErro(erro: unknown): string {
     return erro.message
   }
   return 'Erro inesperado. Tente novamente.'
+}
+
+export function dataBrParaIso(data: string): string {
+  const [dia, mes, ano] = data.split('/')
+  return `${ano}-${mes}-${dia}`
 }
 
 async function extrairMensagem(resposta: Response): Promise<string> {
@@ -65,6 +84,17 @@ async function requisitar<T>(url: string, init?: RequestInit): Promise<T> {
   return (await resposta.json()) as T
 }
 
+function caminho(tipo: TipoMovimentacao): string {
+  return tipo === 'receita' ? '/receitas' : '/gastos'
+}
+
+function corpoJson(dados: NovaMovimentacao): RequestInit {
+  return {
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dados),
+  }
+}
+
 export function buscarResumo(signal: AbortSignal) {
   return requisitar<ResumoFinanceiro>('/financeiro/resumo', { signal })
 }
@@ -74,11 +104,31 @@ export function buscarCategoriasDespesa(signal: AbortSignal) {
 }
 
 export function cadastrarMovimentacao(tipo: TipoMovimentacao, dados: NovaMovimentacao) {
-  const url = tipo === 'receita' ? '/receitas' : '/gastos'
-
-  return requisitar<{ mensagem: string }>(url, {
+  return requisitar<{ mensagem: string }>(caminho(tipo), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(dados),
+    ...corpoJson(dados),
+  })
+}
+
+export async function listarMovimentacoes(tipo: TipoMovimentacao, signal: AbortSignal) {
+  const itens = await requisitar<MovimentacaoApi[]>(caminho(tipo), { signal })
+
+  return itens.map((item): Movimentacao => ({
+    ...item,
+    tipo,
+    dataIso: dataBrParaIso(item.data),
+  }))
+}
+
+export function atualizarMovimentacao(tipo: TipoMovimentacao, id: number, dados: NovaMovimentacao) {
+  return requisitar<{ mensagem: string }>(`${caminho(tipo)}/${id}`, {
+    method: 'PUT',
+    ...corpoJson(dados),
+  })
+}
+
+export function excluirMovimentacao(tipo: TipoMovimentacao, id: number) {
+  return requisitar<{ mensagem: string }>(`${caminho(tipo)}/${id}`, {
+    method: 'DELETE',
   })
 }
