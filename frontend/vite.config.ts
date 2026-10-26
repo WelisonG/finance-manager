@@ -11,6 +11,18 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
+      '/receitas': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+      '/gastos': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+      '/categorias': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
     },
   },
 })

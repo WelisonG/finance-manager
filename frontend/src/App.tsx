@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-
-type ResumoFinanceiro = {
-  total_receitas: number
-  total_despesas: number
-  saldo: number
-}
+import { buscarResumo, mensagemDeErro, type ResumoFinanceiro } from './api'
+import { FormularioMovimentacao } from './components/FormularioMovimentacao'
 
 type Estado =
   | { status: 'carregando' }
@@ -17,29 +13,10 @@ const formatadorMoeda = new Intl.NumberFormat('pt-BR', {
   currency: 'BRL',
 })
 
-async function buscarResumo(signal: AbortSignal): Promise<ResumoFinanceiro> {
-  const resposta = await fetch('/financeiro/resumo', { signal })
-
-  if (!resposta.ok) {
-    throw new Error(`A API respondeu com status ${resposta.status}.`)
-  }
-
-  return (await resposta.json()) as ResumoFinanceiro
-}
-
-function mensagemDeErro(erro: unknown): string {
-  if (erro instanceof TypeError) {
-    return 'Não foi possível conectar à API. Verifique se o backend está rodando na porta 8000.'
-  }
-  if (erro instanceof Error) {
-    return erro.message
-  }
-  return 'Erro inesperado ao carregar o resumo financeiro.'
-}
-
 function App() {
   const [estado, setEstado] = useState<Estado>({ status: 'carregando' })
-  const [tentativa, setTentativa] = useState(0)
+  // Incrementado para refazer a busca do resumo (retry e após cadastro).
+  const [versao, setVersao] = useState(0)
 
   useEffect(() => {
     const controlador = new AbortController()
@@ -52,11 +29,15 @@ function App() {
       })
 
     return () => controlador.abort()
-  }, [tentativa])
+  }, [versao])
 
   function tentarNovamente() {
     setEstado({ status: 'carregando' })
-    setTentativa((valor) => valor + 1)
+    setVersao((valor) => valor + 1)
+  }
+
+  function atualizarResumo() {
+    setVersao((valor) => valor + 1)
   }
 
   const resumo = estado.status === 'sucesso' ? estado.resumo : null
@@ -112,6 +93,8 @@ function App() {
           )}
         </article>
       </section>
+
+      <FormularioMovimentacao aoCadastrar={atualizarResumo} />
     </div>
   )
 }

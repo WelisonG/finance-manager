@@ -1,0 +1,173 @@
+.formulario-card {
+  margin-top: 8px;
+  padding: 24px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  box-sizing: border-box;
+}
+
+.formulario-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.alternador {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.alternador button {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.alternador button.ativa.opcao-receita {
+  background: var(--receitas);
+  color: var(--surface);
+}
+
+.alternador button.ativa.opcao-despesa {
+  background: var(--despesas);
+  color: var(--surface);
+}
+
+.alternador button:focus-visible {
+  outline: 2px solid var(--saldo);
+  outline-offset: 2px;
+}
+
+.formulario {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px 20px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.campo-largo {
+  grid-column: 1 / -1;
+}
+
+.campo label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-strong);
+  font: inherit;
+}
+
+.campo input:focus-visible,
+.campo select:focus-visible {
+  outline: 2px solid var(--saldo);
+  outline-offset: 1px;
+  border-color: var(--saldo);
+}
+
+.campo input[aria-invalid='true'],
+.campo select[aria-invalid='true'] {
+  border-color: var(--despesas);
+}
+
+.campo select:disabled {
+  color: var(--muted);
+}
+
+.erro-campo {
+  font-size: 0.8rem;
+  color: var(--despesas);
+}
+
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.botao-principal {
+  min-width: 200px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  color: var(--surface);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.botao-principal.receita {
+  background: var(--receitas);
+}
+
+.botao-principal.despesa {
+  background: var(--despesas);
+}
+
+.botao-principal:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.botao-principal:focus-visible {
+  outline: 2px solid var(--saldo);
+  outline-offset: 2px;
+}
+
+.feedback {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.feedback.sucesso {
+  color: var(--receitas);
+  background: color-mix(in srgb, var(--receitas) 12%, transparent);
+}
+
+.feedback.erro {
+  color: var(--alerta-text);
+  background: var(--alerta-bg);
+}
+
+@media (max-width: 640px) {
+  .formulario-card {
+    padding: 18px;
+  }
+
+  .acoes {
+    justify-content: stretch;
+  }
+
+  .botao-principal {
+    width: 100%;
+    min-width: 0;
+  }
+}
