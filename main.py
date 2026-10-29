@@ -6,6 +6,7 @@ from schemas.receitas import Receita
 from schemas.categorias import CATEGORIAS
 from datetime import date, datetime
 from decimal import ROUND_HALF_UP, Decimal
+import database.connection
 
 
 CENTAVOS = Decimal("0.01")
